@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slash 的崩潰與逆襲｜24個月大專模擬</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  max-width:640px;
+  margin:20px auto;
+  padding:0 12px;
+  font-family:system-ui, sans-serif;
+  background:#f3f7fc;
+  color:#222;
+}
+.box{
+  background:#fff;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 10px 30px #00000012;
+}
+/* ===== 登入頁樣式 ===== */
+#loginPage{
+  display:block;
+}
+#gamePage{
+  display:none;
+}
+.login-title{
+  font-size:22px;
+  text-align:center;
+  margin-bottom:20px;
+}
+.login-desc{
+  text-align:center;
+  color:#555;
+  margin-bottom:24px;
+}
+.input-group{
+  margin-bottom:16px;
+}
+.input-group label{
+  display:block;
+  margin-bottom:6px;
+  font-weight:500;
+}
+.input-group input{
+  width:100%;
+  padding:12px;
+  border:1px solid #ccc;
+  border-radius:10px;
+  font-size:16px;
+}
+#loginBtn{
+  width:100%;
+  padding:14px;
+  font-size:16px;
+  border:none;
+  border-radius:10px;
+  background:#3468cb;
+  color:#fff;
+  cursor:pointer;
+  margin-top:10px;
+}
+#loginBtn:active{transform:translateY(1px);}
+.login-warning{
+  color:#c93737;
+  font-size:13px;
+  margin-top:12px;
+  text-align:center;
+  display:none;
+}
+/* ===== 遊戲頁原有樣式 ===== */
+h1{font-size:20px;margin-bottom:4px;}
+.player-info{
+  font-size:14px;
+  color:#444;
+  margin-bottom:12px;
+  background:#eef3ff;
+  padding:8px 12px;
+  border-radius:10px;
+}
+.desc{font-size:13px;color:#666;margin-bottom:16px;}
+.stat-wrap{
+  background:#2b3b70;
+  color:#fff;
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:14px;
+}
+.stat-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  margin:10px 0;
+}
+.stat-item{
+  background:rgba(255,255,255,0.12);
+  border-radius:10px;
+  padding:8px;
+}
+.s-lab{font-size:12px;opacity:0.8;}
+.s-val{font-size:16px;font-weight:bold;}
+.ap{margin-top:8px;font-size:14px;}
+.progress-bar{
+  height:8px;
+  background:rgba(255,255,255,0.2);
+  border-radius:99px;
+  margin-top:10px;
+}
+.pro-inner{
+  height:100%;
+  width:4%;
+  background:#ffbc52;
+  border-radius:99px;
+}
+.log-area{
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:12px;
+  padding:10px;
+  min-height:130px;
+  max-height:180px;
+  overflow-y:auto;
+  font-size:14px;
+  line-height:1.5;
+}
+.tip{
+  margin-top:8px;
+  background:#fff6dc;
+  border-left:4px solid #f7b52e;
+  border-radius:10px;
+  padding:8px;
+  font-size:13px;
+  display:none;
+}
+.event-box{
+  background:#fff4e3;
+  border-radius:12px;
+  padding:14px;
+  margin-top:12px;
+  display:none;
+}
+.event-box h4{margin-bottom:6px;}
+.event-desc{font-size:14px;margin-bottom:10px;}
+.btn-group{
+  margin-top:14px;
+  display:grid;
+  gap:7px;
+}
+button{
+  width:100%;
+  padding:11px;
+  font-size:14px;
+  border:none;
+  border-radius:10px;
+  background:#3468cb;
+  color:#fff;
+  cursor:pointer;
+}
+button:active{transform:translateY(1px);}
+.report{
+  margin-top:12px;
+  background:#eef3ff;
+  border-radius:12px;
+  padding:14px;
+  font-size:14px;
+  white-space:pre-line;
+  display:none;
+}
+.restart-btn{
+  margin-top:12px;
+  background:#239956;
+  display:none;
+}
+.bill-btn{
+  width:auto;
+  padding:5px 8px;
+  font-size:12px;
+  margin-bottom:8px;
+}
+</style>
+</head>
+<body>
+<div class="box">
+  <!-- 登入畫面 -->
+  <div id="loginPage">
+    <h2 class="login-title">💸 Slash 的崩潰與逆襲</h2>
+    <p class="login-desc">24個月大專生存戰｜理財模擬遊戲</p>
+    <div class="input-group">
+      <label>學生姓名</label>
+      <input id="inputName" type="text" placeholder="請輸入你的姓名">
+    </div>
+    <div class="input-group">
+      <label>學號</label>
+      <input id="inputId" type="text" placeholder="請輸入學號">
+    </div>
+    <button id="loginBtn" onclick="doLogin()">開始遊戲</button>
+    <div class="login-warning" id="warnText">請填寫姓名及學號！</div>
+  </div>
+
+  <!-- 遊戲畫面 -->
+  <div id="gamePage">
+    <h1>💸 Slash 的崩潰與逆襲</h1>
+    <div class="player-info">👤玩家：<span id="playerName"></span>｜📇學號：<span id="playerSid"></span></div>
+    <div class="desc">24個月大專生存戰｜合法試錯理財模擬</div>
+
+    <div class="stat-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span>第 <span id="month">1</span> / 24 月</span>
+        <span>目標：活過24個月順利畢業</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-item">
+          <div class="s-lab">現金</div>
+          <div class="s-val">$<span id="cash">18000</span></div>
+        </div>
+        <div class="stat-item">
+          <div class="s-lab">精神</div>
+          <div class="s-val"><span id="mental">75</span>/100</div>
+        </div>
+        <div class="stat-item">
+          <div class="s-lab">社交/CV</div>
+          <div class="s-val"><span id="status">60</span>/100</div>
+        </div>
+      </div>
+      <div class="ap">⚡行動點：<span id="actionPoint">3</span> / 3</div>
+      <div class="progress-bar">
+        <div class="pro-inner" id="proBar"></div>
+      </div>
+    </div>
+
+    <button class="bill-btn" onclick="showBill()">🧾查看帳單</button>
+    <div class="log-area" id="logBox">歡迎！你是大專學生。
+每回合有3個行動點，平衡金錢、精神、社交。
+任意數值歸零就遊戲結束。</div>
+    <div class="tip" id="tipBox"></div>
+
+    <div class="event-box" id="eventPanel">
+      <h4 id="eTitle">突發事件</h4>
+      <div class="event-desc" id="eDesc"></div>
+      <div id="eBtns"></div>
+    </div>
+
+    <div class="btn-group" id="mainBtns">
+      <button onclick="doAct('study')">📚 上堂讀書</button>
+      <button onclick="doAct('parttime')">💼 Part‑Time打工</button>
+      <button onclick="doAct('skill')">✍️ 學習新技能</button>
+      <button onclick="doAct('relax')">☕ 休閒放鬆</button>
+      <button onclick="endMonth()">➡️ 結束本月</button>
+    </div>
+
+    <div class="report" id="reportBox"></div>
+    <button class="restart-btn" id="restartBtn" onclick="startGame()">🔄重新開始</button>
+  </div>
+</div>
+
+<script>
+//登入相關變數
+let playerName = "";
+let playerSid = "";
+
+function doLogin(){
+  const nameInput = document.getElementById("inputName");
+  const sidInput = document.getElementById("inputId");
+  const warn = document.getElementById("warnText");
+  playerName = nameInput.value.trim();
+  playerSid = sidInput.value.trim();
+  if(playerName === "" || playerSid === ""){
+    warn.style.display = "block";
+    return;
+  }
+  warn.style.display = "none";
+  //切換頁面
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("gamePage").style.display = "block";
+  document.getElementById("playerName").innerText = playerName;
+  document.getElementById("playerSid").innerText = playerSid;
+  startGame();
+}
+
+const MAX_MONTH = 24;
+let game = {};
+let logMessages = [];
+const MAX_LOG = 6;
+let usedEvents = []; // 記錄已經觸發過的事件，防止重複
+
+//DOM
+const logBox = document.getElementById("logBox");
+const tipBox = document.getElementById("tipBox");
+const eventPanel = document.getElementById("eventPanel");
+const eTitle = document.getElementById("eTitle");
+const eDesc = document.getElementById("eDesc");
+const eBtns = document.getElementById("eBtns");
+const mainBtns = document.getElementById("mainBtns");
+const reportBox = document.getElementById("reportBox");
+const restartBtn = document.getElementById("restartBtn");
+const proBar = document.getElementById("proBar");
+
+let playerRec = {
+  gamble:0,
+  bnpl:0,
+  skillLearn:0,
+  freelanceBuff:false,
+  phoneDebuff:false,
+  usury:false
+};
+
+// ========== 12個事件庫 ==========
+const eventList = [
+  {
+    id:1,
+    title:"🛍️ 落唔落俱樂部？",
+    desc:"大學同學突然在Group興起，今晚要去蘭桂坊/尖沙咀高級酒吧聚會，傳聞男神/女神都會去。但你這個月預算已經超支。",
+    opt:[
+      {txt:"A：豪爽去，用BNPL先買後付",func:function(){
+        game.cash -=800;
+        game.mental -=20;
+        game.status +=15;
+        playerRec.bnpl++;
+        printMsg("使用BNPL參加聚會，享受到社交氣氛，但負債增加。");
+        showTip("FOMO同儕壓力容易令你超出預算，BNPL當下輕鬆，後續要還錢。");
+        closeEv();
+      }},
+      {txt:"B：理性拒絕，留在家食公仔麵",func:function(){
+        game.cash -=20;
+        game.mental +=15;
+        game.status -=5;
+        printMsg("藉口趕project拒絕聚會，IG刷到其他人的story，感到孤獨。");
+        showTip("學會拒絕超出預算的社交，是理財重要一課。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:2,
+    title:"🛍️ 演唱會神仙打架",
+    desc:"你最愛的偶像宣布來港開演唱會，門票瞬間秒殺。黃牛黨在網上開價原價的3倍。",
+    opt:[
+      {txt:"A：買黃牛飛",func:function(){
+        game.cash -=3000;
+        game.mental -=40;
+        game.status +=10;
+        printMsg("成功買到黃牛門票，見到偶像，心情極度興奮。");
+        showTip("熱愛值得尊重，但高價黃牛飛屬於非必要大額消費。");
+        closeEv();
+      }},
+      {txt:"B：忍痛放棄，看網上飯拍",func:function(){
+        game.mental +=20;
+        printMsg("放棄搶黃牛飛，內心持續內耗。");
+        showTip("短期慾望消費代價高昂，可以等待官方重售。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:3,
+    title:"🛍️ 同學都換新手機",
+    desc:"最新一代iPhone推出，身邊的同學紛紛出機，甚至連平時省吃儉用的Roommate都換了。",
+    opt:[
+      {txt:"A：跟風出機，零機價上台24個月合約",func:function(){
+        game.bnplInstallment +=450;
+        game.mental -=10;
+        game.status +=5;
+        playerRec.phoneDebuff = true;
+        printMsg("零機價上台，未來24個月每月要額外還450。");
+        showTip("零機價唔係免費，係長期隱形負債，持續消耗未來現金流。");
+        closeEv();
+      }},
+      {txt:"B：繼續用舊機，貼保護貼撐住",func:function(){
+        game.mental +=5;
+        printMsg("繼續使用舊手機，看到同學新機心裡有少少羡慕。");
+        showTip("電子產品屬於想要，唔係必需，功能正常就可以繼續用。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:4,
+    title:"💸 Threads 上的財富密碼",
+    desc:"Threads上一位經常曬名車的名人推介一隻新興加密貨幣（Meme Coin），聲稱「依家入市，下星期翻倍，唔入就一世做底層」。",
+    opt:[
+      {txt:"A：ALL IN 投機",func:function(){
+        playerRec.gamble++;
+        let luck = Math.random();
+        if(luck <0.5){
+          let gain = game.cash *1.5;
+          game.cash += gain;
+          game.mental -=30;
+          printMsg(`🍀運氣爆發，現金增加${gain.toFixed(0)}！純屬運氣，不是穩賺方法`);
+        }else{
+          game.cash = 0;
+          game.mental +=50;
+          printMsg("💥爆倉！現金全部歸零，壓力崩潰");
+        }
+        showTip("網上搵快錢大多是投機，贏錢只係運氣，長遠極大機會輸光。");
+        closeEv();
+      }},
+      {txt:"B：冷眼旁觀，放虛擬銀行收息",func:function(){
+        printMsg("你拒絕誘惑。幾個月後新聞傳出該網紅捲款潛逃。");
+        showTip("無風險高回報一定係騙局，守住本金就是勝利。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:5,
+    title:"💸 神秘的刷單兼職",
+    desc:"有人在IG Direct密你，說招聘「網購平台評論員」，只要點讚商品就能賺取佣金，但要先墊付$1,000認購商品，完成後連本帶利歸還。",
+    opt:[
+      {txt:"A：嘗試做做看",func:function(){
+        game.cash +=150;
+        printMsg("收到小甜頭150佣金！對方要求你墊5000先可以提現。");
+        showTip("刷單詐騙套路：先俾小錢，之後要求你大額墊資，一旦轉帳就會被騙。");
+        closeEv();
+      }},
+      {txt:"B：直接Block掉，認定係詐騙",func:function(){
+        game.mental -=5;
+        printMsg("你一眼識破騙局，拒絕參與，為自己的警覺感自豪。");
+        showTip("任何要先墊錢先有佣金的網上兼職，100%係詐騙。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:6,
+    title:"💸 炒潮物套利機會",
+    desc:"某潮牌推出限量版Bearbrick或波鞋，中籤者轉手可賺$2,000。你幸運中籤了，但需要立刻付$3,000提貨。",
+    opt:[
+      {txt:"A：提貨炒賣",func:function(){
+        let luck = Math.random();
+        if(luck <0.5){
+          game.cash +=2000;
+          printMsg("市場氣氛熱烈，成功套利賺2000！");
+        }else{
+          game.cash -=1000;
+          printMsg("品牌大補貨，價格暴跌，只能蝕讓，虧$1000");
+        }
+        showTip("炒潮物屬投機，市場價格可以突然大跌，唔係穩定收入。");
+        closeEv();
+      }},
+      {txt:"B：放棄中籤資格",func:function(){
+        printMsg("放棄炒賣機會，避免投入大額金錢。");
+        showTip("投機套利需要承擔價格暴跌風險。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:7,
+    title:"🚑「啪」一聲，螢幕碎了",
+    desc:"趕巴士去考試時，手機不小心飛出去，螢幕徹底碎裂無法顯示。這部手機是你做Assignment和兼職接單的命根子。",
+    opt:[
+      {txt:"A：維修手機",func:function(){
+        if(game.cash>2000){
+          game.cash -=2000;
+          game.mental +=10;
+          printMsg("使用儲蓄支付2000維修費，手機修復。");
+        }else{
+          game.mental +=40;
+          game.bnplInstallment +=300;
+          playerRec.usury=true;
+          printMsg("現金不足！向財務公司借貸，每月額外利息300。");
+        }
+        showTip("緊急事件隨時會發生，應急儲備金可以避免被迫借高息貸款。");
+        closeEv();
+      }},
+      {txt:"B：暫時唔修，硬撐",func:function(){
+        game.mental +=35;
+        printMsg("手機壞掉，做assignment、聯絡客戶都大受影響，壓力大增。");
+        showTip("重要工具損壞會直接影響學業與收入，需要考慮風險。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:8,
+    title:"🚑 慘變密切接觸者/生病",
+    desc:"不幸染上重感冒，偏偏過兩天就是大考和兼職活動（Event Crew）的大日子。",
+    opt:[
+      {txt:"A：睇私家醫生速效藥",func:function(){
+        game.cash -=600;
+        game.mental +=5;
+        printMsg("花600看私家醫生，希望快速康復應付考試同工作。");
+        showTip("健康是資本，小病不及時處理，損失可能更大。");
+        closeEv();
+      }},
+      {txt:"B：死頂，排公立醫院",func:function(){
+        game.mental +=30;
+        printMsg("唔睇醫生硬撐，身體不適，兼職取消，少賺1000。");
+        showTip("硬撐健康會損失收入，要衡量健康與開銷。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:9,
+    title:"🚑 大專Grant/Loan遲批",
+    desc:"政府的學生資助（SFAA）審批延誤，原本預計這個月到帳的貸款推遲兩個月，但宿費/學費雜費單已經寄到。",
+    opt:[
+      {txt:"A：動用儲蓄墊支",func:function(){
+        game.cash -=5000;
+        game.mental +=20;
+        printMsg("用自己積蓄墊支學費宿費，現金流變得緊張。");
+        showTip("政府資助未必準時到帳，要預留緩衝資金。");
+        closeEv();
+      }},
+      {txt:"B：任由逾期，等待資助",func:function(){
+        game.status -=10;
+        game.mental +=30;
+        printMsg("帳單逾期，收到催繳通知，影響校內紀錄。");
+        showTip("學費逾期會留下紀錄，要留意各項費用截止日期。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:10,
+    title:"🎓 爆Job機會 vs 爛Grade風險",
+    desc:"臨近Exam Week，突然有熟人介紹一個高薪的五天會展短期工，做完可以賺$4,000，但代價是完全沒時間溫書。",
+    opt:[
+      {txt:"A：賺錢要緊，接咗份工",func:function(){
+        game.cash +=4000;
+        game.mental +=25;
+        game.status -=15;
+        printMsg("賺到4000，但溫書時間不足，學業成績受影響。");
+        showTip("短期快錢會犧牲長遠學業競爭力，要衡量取捨。");
+        closeEv();
+      }},
+      {txt:"B：專心溫書，拒絕工作",func:function(){
+        game.status +=15;
+        game.mental +=10;
+        printMsg("放棄短期收入，全力備考，成績提升。");
+        showTip("學業是大專階段最重要投資，好成績有助未來求職。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:11,
+    title:"🎓 微副業的投資",
+    desc:"你想在大學期間接Freelance賺錢，網上有一個專業的影片剪輯/AI繪圖大師班課程正在打折，學費$1,500。",
+    opt:[
+      {txt:"A：投資知識，報名課程",func:function(){
+        game.cash -=1500;
+        game.mental +=10;
+        playerRec.freelanceBuff = true;
+        playerRec.skillLearn++;
+        printMsg("報名課程，學會新技能，之後打工有機會遇到高薪Freelance。");
+        showTip("投資技能可以提升長遠收入潛力，屬自我增值。");
+        closeEv();
+      }},
+      {txt:"B：網上睇免費教學",func:function(){
+        printMsg("選擇免費資源，唔使使錢，但學習效率較低。");
+        showTip("免費資源有價值，但系統課程可以更快掌握專業技能。");
+        closeEv();
+      }}
+    ]
+  },
+  {
+    id:12,
+    title:"🎓 上莊/認真做Project",
+    desc:"學系內最有影響力的學會邀請你「上莊」（擔任幹事），這對你未來的就業人脈（Networking）很有幫助，但需要自費出資籌辦迎新營（O-Camp）。",
+    opt:[
+      {txt:"A：積極參與，自掏腰包",func:function(){
+        game.cash -=1200;
+        game.mental +=15;
+        game.status +=30;
+        printMsg("成為學會幹事，花錢籌備Ocamp，人脈大幅提升。");
+        showTip("課外活動可以拓展人脈，但要留意自費開銷。");
+        closeEv();
+      }},
+      {txt:"B：做潛水學生，謝絕邀請",func:function(){
+        game.status -=10;
+        printMsg("拒絕學會邀請，專注個人生活，損失拓展人脈機會。");
+        showTip("人脈有助求職，但唔需要強迫自己參加所有活動。");
+        closeEv();
+      }}
+    ]
+  }
+];
+
+function showTip(text){
+  tipBox.innerText = "💡理財啟示：" + text;
+  tipBox.style.display = "block";
+}
+function hideTip(){tipBox.style.display = "none";}
+
+function showBill(){
+  alert("🧾每月固定開銷\n租金：‑1800\n伙食交通：‑1600\nBNPL分期：‑"+game.bnplInstallment);
+}
+
+function startGame(){
+  game = {
+    month:1,
+    cash:18000,
+    mental:75,
+    status:60,
+    actionPoint:3,
+    bnplInstallment:0,
+    gameOver:false,
+    inEvent:false
+  };
+  playerRec = {gamble:0,bnpl:0,skillLearn:0,freelanceBuff:false,phoneDebuff:false,usury:false};
+  usedEvents = []; //重置已觸發事件清單
+  logMessages = [`歡迎 ${playerName}！你是大專學生。`,"每回合有3個行動點，平衡金錢、精神、社交。","任意數值歸零就遊戲結束。"];
+  hideTip();
+  reportBox.style.display = "none";
+  restartBtn.style.display = "none";
+  mainBtns.style.display = "grid";
+  eventPanel.style.display = "none";
+  renderLog();
+  refreshUi();
+}
+
+function refreshUi(){
+  document.getElementById("cash").innerText = game.cash;
+  document.getElementById("mental").innerText = game.mental;
+  document.getElementById("status").innerText = game.status;
+  document.getElementById("month").innerText = game.month;
+  document.getElementById("actionPoint").innerText = game.actionPoint;
+  let p = Math.min(100, Math.round(game.month / MAX_MONTH *100));
+  proBar.style.width = p +"%";
+}
+
+function printMsg(txt){
+  logMessages.push(txt);
+  if(logMessages.length > MAX_LOG) logMessages.shift();
+  renderLog();
+}
+function renderLog(){
+  logBox.innerText = logMessages.map(x=>"> "+x).join("\n");
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+//行動
+function doAct(type){
+  if(game.gameOver || game.inEvent) return;
+  if(game.actionPoint <=0){
+    printMsg("⚠行動點用盡，請結束本月");
+    return;
+  }
+  hideTip();
+  game.actionPoint -=1;
+  switch(type){
+    case "study":
+      game.status +=4;
+      game.mental -=4;
+      printMsg("📚讀書，提升CV，消耗少量精神");
+      showTip("讀書是對自己未來投資，也要顧及身心。");
+      break;
+    case "parttime":
+      game.cash +=2800;
+      // 如果有freelanceBuff，隨機觸發高薪接單
+      if(playerRec.freelanceBuff && Math.random()<0.35){
+        game.cash +=1600;
+        printMsg("💼打工！觸發Freelance高時薪接單，額外賺1600");
+      }else{
+        printMsg("💼打工賺2800，感到疲勞");
+      }
+      game.mental -=6;
+      showTip("打工賺錢，但會消耗休息時間。");
+      break;
+    case "skill":
+      game.cash -=1200;
+      game.mental -=5;
+      playerRec.skillLearn +=1;
+      printMsg("✍️學習新技能，短期沒有金錢回報");
+      showTip("投資自己，長遠潛在回報很高。");
+      break;
+    case "relax":
+      game.mental +=14;
+      printMsg("☕放鬆休息，回復精神");
+      showTip("休息不是浪費時間，維持身心很重要。");
+      break;
+  }
+  clampStat();
+  refreshUi();
+  checkEnd();
+}
+
+function clampStat(){
+  game.mental = Math.max(0, Math.min(100, game.mental));
+  game.status = Math.max(0, Math.min(100, game.status));
+}
+
+//隨機事件抽選，不會重複，加入條件加權
+function rollEvent(){
+  // 基礎觸發率25%
+  let baseChance = 0.25;
+  //條件加權
+  if(game.cash < 2000){
+    baseChance +=0.2; //現金少，提升事件機率
+  }
+  if(game.mental >80){
+    baseChance +=0.2; //精神壓力高，提升事件機率
+  }
+  baseChance = Math.min(baseChance,0.85);
+
+  let rnd = Math.random();
+  if(rnd > baseChance){
+    printMsg("本月平穩，沒有突發事件。");
+    game.inEvent = false;
+    eventPanel.style.display = "none";
+    mainBtns.style.display = "grid";
+    return;
+  }
+
+  //篩選未觸發過的事件
+  let availableEvents = eventList.filter(e=> !usedEvents.includes(e.id));
+  if(availableEvents.length ===0){
+    printMsg("所有突發事件已經全部出現過，本月平穩。");
+    game.inEvent = false;
+    eventPanel.style.display = "none";
+    mainBtns.style.display = "grid";
+    return;
+  }
+
+  //條件偏好抽選
+  let selected;
+  if(game.cash <2000){
+    //優先抽【現金不足】相關事件7,8,9
+    let lowCashEvt = availableEvents.filter(e=>[7,8,9].includes(e.id));
+    if(lowCashEvt.length>0) availableEvents = lowCashEvt;
+  }else if(game.mental>80){
+    //精神壓力高優先抽社交誘惑1,2,3
+    let stressEvt = availableEvents.filter(e=>[1,2,3].includes(e.id));
+    if(stressEvt.length>0) availableEvents = stressEvt;
+  }
+  selected = availableEvents[Math.floor(Math.random()*availableEvents.length)];
+  usedEvents.push(selected.id); //標記已使用，不再重複
+
+  game.inEvent = true;
+  mainBtns.style.display = "none";
+  eventPanel.style.display = "block";
+  eTitle.innerText = selected.title;
+  eDesc.innerText = selected.desc;
+  eBtns.innerHTML = "";
+  selected.opt.forEach(opt=>{
+    let b = document.createElement("button");
+    b.style.marginTop="8px";
+    b.innerText = opt.txt;
+    b.onclick = opt.func;
+    eBtns.appendChild(b);
+  })
+}
+
+function closeEv(){
+  game.inEvent = false;
+  eventPanel.style.display = "none";
+  mainBtns.style.display = "grid";
+  refreshUi();
+  checkEnd();
+}
+
+function endMonth(){
+  if(game.gameOver || game.inEvent) return;
+  hideTip();
+  //每月扣固定開銷
+  game.cash -= 1800;
+  game.cash -= 1600;
+  game.cash -= game.bnplInstallment;
+
+  game.mental +=5; //每月休息回血
+  game.actionPoint = 3;
+  game.month +=1;
+
+  printMsg("====進入第"+game.month+"個月====");
+  clampStat();
+  refreshUi();
+
+  if(game.month <= MAX_MONTH){
+    rollEvent();
+  }
+  checkEnd();
+}
+
+function checkEnd(){
+  if(game.mental <=0){
+    game.gameOver = true;
+    showResult("mental");
+    return;
+  }
+  if(game.status <=0){
+    game.gameOver = true;
+    showResult("status");
+    return;
+  }
+  if(game.month > MAX_MONTH){
+    game.gameOver = true;
+    showResult("graduate");
+  }
+}
+
+function showResult(reason){
+  mainBtns.style.display = "none";
+  eventPanel.style.display = "none";
+  let ending = "";
+  let rep = "📊財商診斷報告\n";
+  rep += "玩家："+playerName+"｜學號："+playerSid+"\n";
+  rep += "最終現金："+game.cash+"\n";
+  rep += "參與投機次數："+playerRec.gamble+"\n";
+  rep += "使用BNPL次數："+playerRec.bnpl+"\n";
+  rep += "學習技能次數："+playerRec.skillLearn+"\n";
+  rep += "是否解鎖Freelance："+(playerRec.freelanceBuff?"是":"否")+"\n\n";
+
+  if(reason === "mental"){
+    ending = "💔結局：精神徹底崩潰，求學中斷";
+    rep += "反思：只顧金錢或者玩樂，忽略身心，一樣會毀掉求學與財務。";
+  }else if(reason === "status"){
+    ending = "😵結局：人脈競爭力歸零，難以繼續讀書";
+    rep += "反思：完全犧牲社交課堂，畢業也會失去機會。";
+  }else{
+    if(playerRec.gamble >=2 || game.cash < -8000){
+      ending = "🦹結局：韭菜之王，畢業背負卡數";
+      rep += "反思：遊戲虧損只是模擬，現實不要迷信搵快錢。";
+    }else if(game.cash >=22000 && playerRec.skillLearn >=3 && playerRec.freelanceBuff){
+      ending = "🚀結局：斜槓潛力者，畢業有啟動資金與技能";
+      rep += "反思：投資自己，是年輕人回報率最高的方式。";
+    }else{
+      ending = "🛋️結局：精緻窮躺平族，平安畢業但沒有多少積蓄";
+      rep += "反思：沒有欠債已經不錯，學會區分想要vs需要，建立應急金。";
+    }
+  }
+  logMessages = [ending];
+  renderLog();
+  reportBox.innerText = ending + "\n\n" + rep;
+  reportBox.style.display = "block";
+  restartBtn.style.display = "block";
+}
+</script>
+</body>
+</html>
